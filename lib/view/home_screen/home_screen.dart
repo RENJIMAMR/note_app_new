@@ -69,6 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           //we can do this by creating another object like this
                           // title_controller = TextEditingController(
                           //     text: Dummydb.ListCardData[index]['title']);
+                          selectedColorIndex =
+                              Dummydb.ListCardData[index]['colorIndex'];
 
                           _customBottomSheet(context,
                               isEdit: true, itemIndex: index);
