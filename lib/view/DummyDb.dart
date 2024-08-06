@@ -20,10 +20,10 @@ class Dummydb {
     // }
   ];
   static List<Color> colorsList = [
-    Color.fromARGB(255, 158, 165, 134),
-    Color.fromARGB(255, 134, 155, 165),
-    Color.fromARGB(255, 103, 156, 180),
-    Color.fromARGB(255, 165, 134, 153),
-    Color.fromARGB(255, 88, 97, 190)
+    Color.fromARGB(255, 177, 194, 119),
+    Color.fromARGB(255, 198, 229, 243),
+    Color.fromARGB(255, 233, 190, 227),
+    Color.fromARGB(255, 230, 243, 157),
+    Color.fromARGB(255, 167, 242, 160)
   ];
 }

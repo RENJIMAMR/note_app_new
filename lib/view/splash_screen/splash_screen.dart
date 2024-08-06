@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:note_app_new/utils/animation_constants.dart';
 import 'package:note_app_new/view/home_screen/home_screen.dart';
-import 'package:note_app_new/view/note_screen/note_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

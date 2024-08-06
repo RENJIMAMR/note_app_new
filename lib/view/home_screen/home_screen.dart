@@ -1,9 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
+import 'package:note_app_new/utils/app_sessions.dart';
 import 'package:note_app_new/utils/color_constants.dart';
 import 'package:note_app_new/view/DummyDb.dart';
 import 'package:note_app_new/view/global_widgets/list_card.dart';
+import 'package:note_app_new/view/note_detailing_screen/note_detailing_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +17,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  var noteBox = Hive.box(AppSessions.NOTEBOX);
+  List noteKeys = [];
   int selectedColorIndex = 0;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -20,6 +26,14 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController content_controller = TextEditingController();
   TextEditingController date_controller = TextEditingController();
   @override
+  @override
+  void initState() {
+    // we can't assign a value to the same instance variable in same class, have to create a function ,so done initstate,to get keys and initial values when app starting
+    noteKeys = noteBox.keys.toList();
+    setState(() {});
+    super.initState();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -49,46 +63,52 @@ class _HomeScreenState extends State<HomeScreen> {
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
-                  if (index < Dummydb.ListCardData.length) {
-                    return InkWell(
-                      onTap: () {},
-                      child: ListCard(
-                        NoteColor: Dummydb.colorsList[
-                            Dummydb.ListCardData[index]['colorIndex']],
-                        onDelete: () {
-                          Dummydb.ListCardData.removeAt(index);
-                          setState(() {});
-                        },
-                        onEdit: () {
-                          title_controller.text =
-                              Dummydb.ListCardData[index]['title'];
-                          content_controller.text =
-                              Dummydb.ListCardData[index]['content'];
-                          date_controller.text =
-                              Dummydb.ListCardData[index]['date'];
-                          //we can do this by creating another object like this
-                          // title_controller = TextEditingController(
-                          //     text: Dummydb.ListCardData[index]['title']);
-                          selectedColorIndex =
-                              Dummydb.ListCardData[index]['colorIndex'];
+                  var currentNote = noteBox.get(noteKeys[index]);
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NoteDetailingScreen(
+                                title: currentNote['title'],
+                                content: currentNote['content'],
+                                date: currentNote['date'],
+                                bg: Dummydb
+                                    .colorsList[currentNote["colorIndex"]]),
+                          ));
+                    },
+                    child: ListCard(
+                      title: currentNote['title'],
+                      content: currentNote['content'],
+                      date: currentNote['date'],
+                      NoteColor: Dummydb.colorsList[currentNote["colorIndex"]],
+                      //for deletion
+                      onDelete: () {
+                        noteBox.delete(noteKeys[index]);
+                        noteKeys = noteBox.keys.toList();
+                        setState(() {});
+                      },
+                      //to edit
+                      onEdit: () {
+                        title_controller.text = currentNote['title'];
+                        content_controller.text = currentNote['content'];
+                        date_controller.text = currentNote['date'];
+                        //we can do this by creating another object like this
+                        // title_controller = TextEditingController(
+                        //     text: Dummydb.ListCardData[index]['title']);
+                        selectedColorIndex = currentNote['colorIndex'];
 
-                          _customBottomSheet(context,
-                              isEdit: true, itemIndex: index);
-                          setState(() {});
-                        },
-                        title: Dummydb.ListCardData[index]['title'],
-                        content: Dummydb.ListCardData[index]['content'],
-                        date: Dummydb.ListCardData[index]['date'],
-                      ),
-                    );
-                  } else {
-                    return Container();
-                  }
+                        _customBottomSheet(context,
+                            isEdit: true, itemIndex: index);
+                        setState(() {});
+                      },
+                    ),
+                  );
                 },
                 separatorBuilder: (context, index) => SizedBox(
                   height: 20,
                 ),
-                itemCount: Dummydb.ListCardData.length,
+                itemCount: noteKeys.length,
               ),
             ],
           ),
@@ -165,6 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   height: 20,
                                 ),
                                 TextFormField(
+                                  readOnly: true,
                                   validator: (date) {
                                     if (date != null && date.isNotEmpty) {
                                       return null;
@@ -174,6 +195,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                   },
                                   controller: date_controller,
                                   decoration: InputDecoration(
+                                      suffixIcon: IconButton(
+                                          onPressed: () async {
+                                            var selectDate =
+                                                await showDatePicker(
+                                                    initialDatePickerMode:
+                                                        DatePickerMode.day,
+                                                    context: context,
+                                                    firstDate: DateTime(2024),
+                                                    lastDate: DateTime.now());
+                                            if (selectDate != null) {
+                                              date_controller.text =
+                                                  DateFormat('dd MMMM, y')
+                                                      .format(selectDate);
+                                            }
+                                          },
+                                          icon: Icon(
+                                              Icons.calendar_month_outlined)),
                                       filled: true,
                                       hintText: 'Date',
                                       hintMaxLines: 10,
@@ -259,14 +297,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                   InkWell(
                                     onTap: () {
                                       isEdit
-                                          ? Dummydb.ListCardData[itemIndex!] = {
+                                          ? noteBox.put(noteKeys[itemIndex!], {
                                               'title': title_controller.text,
                                               'content':
                                                   content_controller.text,
                                               'date': date_controller.text,
                                               'colorIndex': selectedColorIndex
-                                            }
-                                          : Dummydb.ListCardData.add({
+                                            })
+
+                                          //to add new note to hive storage
+                                          //step 3
+                                          : noteBox.add({
                                               'title': title_controller.text,
                                               'content':
                                                   content_controller.text,
@@ -274,6 +315,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               'colorIndex': selectedColorIndex
                                             });
                                       // });
+                                      noteKeys = noteBox.keys
+                                          .toList(); //to update the key list after add
                                       setState(() {
                                         Navigator.pop(context);
                                       });
