@@ -20,6 +20,9 @@ class _HomeScreenState extends State<HomeScreen> {
   var noteBox = Hive.box(AppSessions.NOTEBOX);
   List noteKeys = [];
   int selectedColorIndex = 0;
+
+  TextEditingController lockcontroller1 = TextEditingController();
+  GlobalKey<FormState> lockkey1 = GlobalKey<FormState>();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   TextEditingController title_controller = TextEditingController();
@@ -66,22 +69,85 @@ class _HomeScreenState extends State<HomeScreen> {
                   var currentNote = noteBox.get(noteKeys[index]);
                   return InkWell(
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => NoteDetailingScreen(
-                                title: currentNote['title'],
-                                content: currentNote['content'],
-                                date: currentNote['date'],
-                                bg: Dummydb
-                                    .colorsList[currentNote["colorIndex"]]),
-                          ));
+                      if (Dummydb.isLock == true) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text(
+                              'Enter master password',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 20),
+                            ),
+                            actions: [
+                              Form(
+                                key: lockkey1,
+                                child: TextFormField(
+                                  validator: (value) {
+                                    if (value != null && value.isNotEmpty) {
+                                      return null;
+                                    } else {
+                                      return 'Enter password';
+                                    }
+                                  },
+                                  controller: lockcontroller1,
+                                  style:
+                                      TextStyle(color: ColorConstants.blueGrey),
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      if (lockkey1.currentState != null &&
+                                          lockkey1.currentState!.validate() &&
+                                          Dummydb.password ==
+                                              lockcontroller1.text) {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  NoteDetailingScreen(
+                                                      title:
+                                                          currentNote['title'],
+                                                      content: currentNote[
+                                                          'content'],
+                                                      date: currentNote['date'],
+                                                      bg: Dummydb.colorsList[
+                                                          currentNote[
+                                                              "colorIndex"]]),
+                                            ));
+                                      }
+                                    },
+                                    child: Text(
+                                      'Ok',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                          color: ColorConstants.blueGrey),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        );
+                      }
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return NoteDetailingScreen(
+                            title: currentNote['title'],
+                            content: currentNote['content'],
+                            date: currentNote['date'],
+                            bg: Dummydb.colorsList[currentNote["colorIndex"]]);
+                      }));
                     },
                     child: ListCard(
                       title: currentNote['title'],
                       content: currentNote['content'],
                       date: currentNote['date'],
                       NoteColor: Dummydb.colorsList[currentNote["colorIndex"]],
+
                       //for deletion
                       onDelete: () {
                         noteBox.delete(noteKeys[index]);
@@ -129,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       bottom: MediaQuery.of(context).viewInsets.bottom),
                   child: Container(
                     decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 63, 72, 81),
+                        color: ColorConstants.blueGrey,
                         borderRadius:
                             BorderRadius.vertical(top: Radius.circular(29))),
                     child: Padding(
@@ -154,8 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   decoration: InputDecoration(
                                       filled: true,
                                       hintText: 'Title',
-                                      fillColor:
-                                          Color.fromARGB(255, 134, 155, 165),
+                                      fillColor: ColorConstants.blueGreyLight,
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(10))),
@@ -175,8 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   decoration: InputDecoration(
                                       filled: true,
                                       hintText: 'Description',
-                                      fillColor:
-                                          Color.fromARGB(255, 134, 155, 165),
+                                      fillColor: ColorConstants.blueGreyLight,
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(10))),
@@ -216,8 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       hintText: 'Date',
                                       hintMaxLines: 10,
                                       hintStyle: TextStyle(),
-                                      fillColor:
-                                          Color.fromARGB(255, 134, 155, 165),
+                                      fillColor: ColorConstants.blueGreyLight,
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(10))),
@@ -253,12 +316,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                               height: 50,
                                               width: 60,
                                               decoration: BoxDecoration(
-                                                border:
-                                                    selectedColorIndex == index
-                                                        ? Border.all(
-                                                            width: 3,
-                                                            color: Colors.white)
-                                                        : null,
+                                                border: selectedColorIndex ==
+                                                        index
+                                                    ? Border.all(
+                                                        width: 3,
+                                                        color: ColorConstants
+                                                            .Mainwhite)
+                                                    : null,
                                                 borderRadius:
                                                     BorderRadius.circular(7),
                                                 color:
@@ -289,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       width: 90,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(7),
-                                        color: Colors.white,
+                                        color: ColorConstants.Mainwhite,
                                       ),
                                       child: Center(child: Text('Cancel')),
                                     ),
@@ -312,7 +376,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                               'content':
                                                   content_controller.text,
                                               'date': date_controller.text,
-                                              'colorIndex': selectedColorIndex
+                                              'colorIndex': selectedColorIndex,
+                                              // 'islock': false,
+                                              // 'pass': ''
                                             });
                                       // });
                                       noteKeys = noteBox.keys
@@ -327,7 +393,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       width: 90,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(7),
-                                        color: Colors.white,
+                                        color: ColorConstants.Mainwhite,
                                       ),
                                       child: Center(
                                           child:

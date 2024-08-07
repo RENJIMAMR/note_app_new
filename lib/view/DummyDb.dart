@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:note_app_new/utils/color_constants.dart';
 
 class Dummydb {
+  static bool? isLock = false;
+  static String? password;
   static List<Map> ListCardData = [
     // {
     //   'title': '',
@@ -20,10 +23,10 @@ class Dummydb {
     // }
   ];
   static List<Color> colorsList = [
-    Color.fromARGB(255, 177, 194, 119),
-    Color.fromARGB(255, 198, 229, 243),
-    Color.fromARGB(255, 233, 190, 227),
-    Color.fromARGB(255, 230, 243, 157),
-    Color.fromARGB(255, 167, 242, 160)
+    ColorConstants.clr1,
+    ColorConstants.clr2,
+    ColorConstants.clr3,
+    ColorConstants.clr4,
+    ColorConstants.clr5,
   ];
 }
