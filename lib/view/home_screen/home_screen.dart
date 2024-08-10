@@ -108,6 +108,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   NoteDetailingScreen(
+                                                    islocked:  currentNote['islock'],
+                                                    
                                                       title:
                                                           currentNote['title'],
                                                       content: currentNote[
@@ -136,10 +138,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
                         return NoteDetailingScreen(
+                          islocked: currentNote['islock'],
                             title: currentNote['title'],
                             content: currentNote['content'],
                             date: currentNote['date'],
-                            bg: Dummydb.colorsList[currentNote["colorIndex"]]);
+                            bg: Dummydb.colorsList[currentNote["colorIndex"]
+                            
+                            ]);
                       }));
                     },
                     child: ListCard(
@@ -377,8 +382,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   content_controller.text,
                                               'date': date_controller.text,
                                               'colorIndex': selectedColorIndex,
-                                              // 'islock': false,
-                                              // 'pass': ''
+                                              'islock': false,
+                                              'pass': ''
                                             });
                                       // });
                                       noteKeys = noteBox.keys

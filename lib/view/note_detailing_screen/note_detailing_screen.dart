@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:hive/hive.dart';
+import 'package:note_app_new/utils/app_sessions.dart';
 import 'package:note_app_new/utils/color_constants.dart';
 import 'package:note_app_new/view/DummyDb.dart';
 
@@ -11,11 +13,11 @@ class NoteDetailingScreen extends StatefulWidget {
     required this.content,
     required this.date,
     required this.bg,
-    // this.islocked,
+    this.islocked,
     // this.lockAlert
   });
   final String title, content, date;
-  // final bool? islocked;
+  final bool? islocked;
   final Color bg;
   // final void Function()? lockAlert;
   @override
@@ -23,7 +25,12 @@ class NoteDetailingScreen extends StatefulWidget {
 }
 
 class _NoteDetailingScreenState extends State<NoteDetailingScreen> {
+
+
   @override
+  @override
+ 
+
   Widget build(BuildContext context) {
     TextEditingController lockcontroller = TextEditingController();
     GlobalKey<FormState> lockkey = GlobalKey<FormState>();
@@ -113,7 +120,7 @@ class _NoteDetailingScreenState extends State<NoteDetailingScreen> {
                                       onTap: () {
                                         if (lockkey.currentState != null &&
                                             lockkey.currentState!.validate()) {
-                                          Dummydb.password =
+                                          Dummydb.password=
                                               lockcontroller.text;
                                           Navigator.pop(context);
                                           Dummydb.isLock = true;

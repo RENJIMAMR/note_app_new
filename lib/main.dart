@@ -6,8 +6,7 @@ import 'package:note_app_new/view/splash_screen/splash_screen.dart';
 
 Future<void> main() async {
   await Hive.initFlutter();
-  var box1 = await Hive.openBox(AppSessions.NOTEBOX);
-  var box2 = await Hive.openBox(AppSessions.PASSWORD);
+  var box = await Hive.openBox(AppSessions.NOTEBOX);
 
   runApp(MyApp());
 }

@@ -1,10 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:note_app_new/utils/app_sessions.dart';
 import 'package:note_app_new/utils/color_constants.dart';
 
 class Dummydb {
   static bool? isLock = false;
   static String? password;
+// var passwordBox = Hive.box(AppSessions.PASSWORD);
+//   List passKeys = [];
+
   static List<Map> ListCardData = [
     // {
     //   'title': '',
